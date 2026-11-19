@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>こころノート</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f4ef;--card:#fff;--tx:#2b2a28;--sub:#6e6a63;--ac:#4f8a78;--acbg:#e3f0ea;--wa:#c0704f;--wabg:#f9e9e1;--bd:#e2ded5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1d1f1e;--card:#272a28;--tx:#ecebe7;--sub:#a5a39b;--ac:#7fc0aa;--acbg:#26403a;--wa:#e39a7a;--wabg:#43302a;--bd:#3a3d3a}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.7 "Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:12px 14px 80px}
+h1{font-size:20px;margin:8px 0 2px}.lead{color:var(--sub);font-size:13px;margin:0 0 12px}
+nav{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0;z-index:5}
+nav button{flex:1;padding:9px 4px;border:1px solid var(--bd);background:var(--card);color:var(--sub);border-radius:10px;font:inherit;font-size:14px}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:12px 0}
+.card h2{font-size:16px;margin:0 0 4px}.step{display:inline-block;background:var(--acbg);color:var(--ac);border-radius:99px;padding:0 10px;font-size:12px;font-weight:700;margin-bottom:4px}
+.hint{color:var(--sub);font-size:13px;margin:0 0 8px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 4px}
+textarea,input[type=text],input[type=time],input[type=date]{width:100%;font:inherit;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+textarea{min-height:84px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:99px;padding:7px 13px;font:inherit;font-size:14px}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.chip.w.on{background:var(--wa);border-color:var(--wa)}
+.branch{display:grid;gap:10px}
+.b1{border:2px dashed var(--wa);background:var(--wabg);border-radius:12px;padding:12px}
+.b2{border:2px solid var(--ac);background:var(--acbg);border-radius:12px;padding:12px}
+.b1 b{color:var(--wa)}.b2 b{color:var(--ac)}
+.val{font-weight:700;color:var(--ac)}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-weight:700;margin-top:14px}
+.btn.s{background:var(--acbg);color:var(--ac);width:auto;padding:8px 14px;font-size:14px;margin-top:8px}
+.btn.d{background:transparent;color:var(--sub);border:1px solid var(--bd)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.chk{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg)}
+.chk input{width:22px;height:22px;accent-color:var(--ac)}
+.tag{font-size:12px;padding:1px 8px;border-radius:99px;background:var(--acbg);color:var(--ac)}
+.rec p{margin:4px 0;font-size:14px;white-space:pre-wrap}.rec .k{color:var(--sub);font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;transition:.3s;pointer-events:none}
+.toast.on{opacity:1}
+.note{font-size:12px;color:var(--sub);margin-top:20px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>🌿 こころノート</h1>
+<p class="lead">爆発する前に、いったん書いて立ち止まる場所。</p>
+<nav id="nav">
+<button data-t="feel" class="on">気持ちを書く</button>
+<button data-t="daily">今日の調子</button>
+<button data-t="log">記録</button>
+</nav>
+
+<section id="feel">
+<div class="card"><span class="step">1</span><h2>いま、どんな気持ち？</h2>
+<p class="hint">出来事や、頭に浮かんでいることをそのまま書いてOK。</p>
+<textarea id="feeling" placeholder="例：返信が来なくてイライラする、など"></textarea>
+<label>気持ちの強さ <span class="val" id="iv">5</span> / 10</label>
+<input type="range" id="intensity" min="0" max="10" value="5">
+</div>
+
+<div class="card"><span class="step">2</span><h2>もし爆発したら、どうしそう？</h2>
+<p class="hint">起きそうな行動を選んでみましょう（複数OK）。</p>
+<div class="chips" id="acts"></div>
+<label>その他・具体的に</label>
+<input type="text" id="actOther" placeholder="自由に書いてください">
+<label>その結果、どうなりそう？</label>
+<textarea id="result" placeholder="例：後で後悔する、相手との関係が気まずくなる"></textarea>
+</div>
+
+<div class="card"><span class="step">3</span><h2>もうひとつの道</h2>
+<div class="branch">
+<div class="b1"><b>爆発した自分</b><div id="b1txt" class="hint" style="margin:4px 0 0">（上で選んだ行動がここに出ます）</div></div>
+<div class="b2"><b>選ばなかった自分</b><div class="hint" style="margin:4px 0 0">いま、書いて立ち止まっています。それ自体が落ち着く力です。</div></div>
+</div>
+<label>いまの落ち着き具合 <span class="val" id="cv">5</span> / 10</label>
+<input type="range" id="calm" min="0" max="10" value="5">
+<label>選ばなかった自分に気づいたこと</label>
+<textarea id="notice" placeholder="例：書いたら少し冷静になれた"></textarea>
+<label>いまできそうなこと</label>
+<div class="chips" id="helps"></div>
+<input type="text" id="helpsOther" placeholder="その他、自分でできそうなことを書く" style="margin-top:8px">
+</div>
+
+<div class="card"><span class="step">4</span><h2>聞いてもらいませんか</h2>
+<p class="hint">ひとりで抱えなくて大丈夫。話すことで整理されることもあります。</p>
+<div class="chips" id="ask"></div>
+<label>誰に聞いてもらう？</label>
+<div class="chips" id="whoc"></div>
+<input type="text" id="who" placeholder="名前や関係性（家族・友人・主治医など）" style="margin-top:8px">
+<label>聞いてもらったあとの気持ちや気づき</label>
+<p class="hint">話したあとに、記録タブから書き足せます。</p>
+<textarea id="after" placeholder="（あとで書いてもOK）"></textarea>
+</div>
+
+<button class="btn" id="saveF">この記録を保存する</button>
+</section>
+
+<section id="daily" class="hide">
+<div class="card"><h2>今日の振り返り</h2>
+<label>日付</label><input type="date" id="dDate">
+<div class="row"><div><label>昨日の就寝時間</label><input type="time" id="bed"></div>
+<div><label>今日の起床時間</label><input type="time" id="wake"></div></div>
+<label>服薬</label>
+<label class="chk" style="font-weight:400;margin:0"><input type="checkbox" id="meds">適切に服薬できている</label>
+<label>気持ちに余裕がない要因・気になっていること</label>
+<textarea id="worry" placeholder="自由に書いてください"></textarea>
+<button class="btn" id="saveD">保存する</button>
+</div>
+</section>
+
+<section id="log" class="hide"><div id="list"></div></section>
+
+<p class="note">記録はこの端末のブラウザ内にだけ保存されます。つらさが強いときや、自分や誰かを傷つけてしまいそうなときは、ひとりで抱えず、主治医や身近な人、地域の相談窓口に連絡してください。</p>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mem={};
+function load(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return mem[k]||[]}}
+function save(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
+const ACTS=['怒鳴る・きつい言葉を言う','物に当たる','連絡を絶つ・無視する','泣いて動けなくなる','自分を責める','衝動的に買い物・食べ過ぎ','その場から逃げる'];
+const HELPS=['深呼吸する','水を飲む','少し歩く','その場を離れる','書き続ける','横になる'];
+const ASK=['聞いてもらう','まだ迷う','今日はやめておく'];
+const WHO=['家族','友人','パートナー','主治医・支援者','相談窓口'];
+const sel={acts:new Set(),helps:new Set(),ask:'',who:''};
+function chips(id,list,mode,cls){
+  const box=$('#'+id);box.innerHTML='';
+  list.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='chip '+(cls||'');b.textContent=t;
+    b.onclick=()=>{
+      if(mode==='multi'){const s=sel[id];s.has(t)?s.delete(t):s.add(t);b.classList.toggle('on')}
+      else{const k=id==='ask'?'ask':'who';sel[k]=sel[k]===t?'':t;[...box.children].forEach(c=>c.classList.toggle('on',c.textContent===sel[k]))}
+      if(id==='acts')upd();
+    };box.appendChild(b)});
+}
+chips('acts',ACTS,'multi','w');chips('helps',HELPS,'multi');chips('ask',ASK,'single');chips('whoc',WHO,'single');
+function upd(){const a=[...sel.acts];if($('#actOther').value.trim())a.push($('#actOther').value.trim());
+  $('#b1txt').textContent=a.length?a.join('／'):'（上で選んだ行動がここに出ます）'}
+$('#actOther').oninput=upd;
+$('#intensity').oninput=e=>$('#iv').textContent=e.target.value;
+$('#calm').oninput=e=>$('#cv').textContent=e.target.value;
+$('#nav').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+  [...$('#nav').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  ['feel','daily','log'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));
+  if(t==='log')render();if(t==='daily')fillD();window.scrollTo(0,0)};
+
+$('#saveF').onclick=()=>{
+  const f=$('#feeling').value.trim();
+  if(!f&&!sel.acts.size&&!$('#notice').value.trim()){toast('まず気持ちを書いてみましょう');return}
+  const l=load('kn_entries');
+  l.unshift({id:Date.now(),ts:Date.now(),feeling:f,intensity:+$('#intensity').value,acts:[...sel.acts],actOther:$('#actOther').value.trim(),
+    result:$('#result').value.trim(),calm:+$('#calm').value,notice:$('#notice').value.trim(),helps:[...sel.helps,$('#helpsOther').value.trim()].filter(Boolean),
+    ask:sel.ask,who:[sel.who,$('#who').value.trim()].filter(Boolean).join('：'),after:$('#after').value.trim()});
+  save('kn_entries',l);
+  ['#feeling','#actOther','#result','#notice','#helpsOther','#who','#after'].forEach(s=>$(s).value='');
+  $('#intensity').value=5;$('#calm').value=5;$('#iv').textContent=5;$('#cv').textContent=5;
+  sel.acts.clear();sel.helps.clear();sel.ask='';sel.who='';
+  chips('acts',ACTS,'multi','w');chips('helps',HELPS,'multi');chips('ask',ASK,'single');chips('whoc',WHO,'single');upd();
+  toast('保存しました。書けた自分を認めてあげてください');
+};
+
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+$('#dDate').value=today();$('#dDate').onchange=fillD;
+function fillD(){const d=load('kn_daily').find(x=>x.date===$('#dDate').value)||{};
+  $('#bed').value=d.bed||'';$('#wake').value=d.wake||'';$('#meds').checked=!!d.meds;$('#worry').value=d.worry||''}
+$('#saveD').onclick=()=>{
+  const l=load('kn_daily').filter(x=>x.date!==$('#dDate').value);
+  l.push({date:$('#dDate').value,bed:$('#bed').value,wake:$('#wake').value,meds:$('#meds').checked,worry:$('#worry').value.trim()});
+  save('kn_daily',l);toast('保存しました')};
+
+function sleepH(b,w){if(!b||!w)return '';const [bh,bm]=b.split(':').map(Number),[wh,wm]=w.split(':').map(Number);
+  let m=(wh*60+wm)-(bh*60+bm);if(m<=0)m+=1440;return (m/60).toFixed(1)+'時間'}
+let delArm='';
+function render(){
+  const E=load('kn_entries').map(x=>({...x,k:'e',t:x.ts}));
+  const D=load('kn_daily').map(x=>({...x,k:'d',t:new Date(x.date+'T12:00:00').getTime()}));
+  const all=[...E,...D].sort((a,b)=>b.t-a.t);
+  if(!all.length){$('#list').innerHTML='<div class="card hint">まだ記録がありません。</div>';return}
+  $('#list').innerHTML=all.map(x=>{
+    if(x.k==='d'){const sl=sleepH(x.bed,x.wake);
+      return `<div class="card rec"><span class="tag">今日の調子</span> <span class="k">${esc(x.date)}</span>
+      <p>就寝 ${esc(x.bed||'—')} → 起床 ${esc(x.wake||'—')} ${sl?'（'+sl+'）':''}</p>
+      <p>服薬：${x.meds?'できている ✓':'未チェック'}</p>${x.worry?`<p class="k">気になること</p><p>${esc(x.worry)}</p>`:''}
+      <button class="btn s d" data-del="d:${esc(x.date)}">${delArm==='d:'+x.date?'もう一度押すと削除':'削除'}</button></div>`}
+    const dt=new Date(x.ts).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const acts=[...x.acts,x.actOther].filter(Boolean).join('／');
+    return `<div class="card rec"><span class="tag">気持ち</span> <span class="k">${dt}</span>
+    ${x.feeling?`<p>${esc(x.feeling)}</p>`:''}
+    <p class="k">強さ ${x.intensity} → 落ち着き ${x.calm}（/10）</p>
+    ${acts?`<p class="k">爆発したらしそうな行動</p><p>${esc(acts)}</p>`:''}
+    ${x.result?`<p class="k">その結果</p><p>${esc(x.result)}</p>`:''}
+    ${x.notice?`<p class="k">選ばなかった自分への気づき</p><p>${esc(x.notice)}</p>`:''}
+    ${x.helps.length?`<p class="k">できそうなこと</p><p>${esc(x.helps.join('、'))}</p>`:''}
+    ${x.ask||x.who?`<p class="k">聞いてもらう：${esc(x.ask||'—')}${x.who?'／'+esc(x.who):''}</p>`:''}
+    <p class="k">聞いてもらったあとの気づき</p>
+    <textarea data-af="${x.id}" placeholder="あとから書き足せます">${esc(x.after)}</textarea>
+    <button class="btn s" data-sv="${x.id}">書き足しを保存</button>
+    <button class="btn s d" data-del="e:${x.id}">${delArm==='e:'+x.id?'もう一度押すと削除':'削除'}</button></div>`}).join('');
+}
+$('#list').onclick=e=>{
+  const sv=e.target.dataset.sv,dl=e.target.dataset.del;
+  if(sv){const l=load('kn_entries'),it=l.find(x=>String(x.id)===sv);
+    it.after=document.querySelector(`[data-af="${sv}"]`).value.trim();save('kn_entries',l);toast('保存しました')}
+  if(dl){if(delArm!==dl){delArm=dl;render();return}
+    const [k,id]=[dl.slice(0,1),dl.slice(2)];
+    if(k==='e')save('kn_entries',load('kn_entries').filter(x=>String(x.id)!==id));
+    else save('kn_daily',load('kn_daily').filter(x=>x.date!==id));
+    delArm='';render()}
+};
+fillD();
+</script>
+</body>
+</html>
